@@ -16,6 +16,8 @@
 
 import logging
 import sys
+import re
+import telepot
 
 from twilio import TwilioRestException
 from twilio.rest import TwilioRestClient
@@ -25,8 +27,14 @@ from canary.slack import slack_bot
 from canary.slack.slack import load_slack_settings
 from canary.twilleo.twilleo import load_twilio_settings
 
+#from canary.telegram import telegram
+#from canary.telegram.telegram import load_telegram_settings
+
+
+
 from canary.pushovr.pushover import load_pushover_settings
 from pushover import Client
+
 
 
 def send_message(alert):
@@ -38,6 +46,15 @@ def send_message(alert):
     slack_enabled = settings_file['settings']['general']['slack']
     logging.debug('Getting Pushover settings.')
     pushover_enabled = settings_file['settings']['general']['pushover']
+    logging.debug('Getting Telegram settings.')
+    telegram_enabled = settings_file['settings']['general']['telegram']
+
+    logging.debug('Checking if Telegram is enabled.')
+    if telegram_enabled:
+        logging.debug('Opening settings.json.')
+        telegram_settings = settings_file['settings']['telegram']
+        bot=telepot.Bot(telegram_settings["token"])
+        bot.sendMessage(telegram_settings["chat_id"],str(alert))
 
     logging.debug('Checking if Twilio is enabled.')
     if twilio_enabled:
